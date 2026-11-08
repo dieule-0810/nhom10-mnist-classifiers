@@ -1,0 +1,83 @@
+Đã có: Tâm gần nhất (baseline), Multinomial Naive Bayes, Logistic Regression, MLP, Random Forest, CNN, Gộp mô hình (soft voting)
+
+[train]
+Mô hình                        Acc    Prec     Rec      F1  log-loss sai p>.99   Fit(s)  Pred(s)
+Tâm gần nhất (baseline)     0.8080  0.8116  0.8046  0.8059         —         —      0.2    0.107
+Multinomial Naive Bayes     0.8247  0.8317  0.8216  0.8233    2.1866   10.108%      0.5    0.327
+Logistic Regression         0.9281  0.9274  0.9270  0.9271    0.2564    0.092%      2.7    0.354
+MLP                         1.0000  1.0000  1.0000  1.0000    0.0018    0.000%    247.7    0.687
+Random Forest               1.0000  1.0000  1.0000  1.0000    0.0650    0.000%      7.3    0.648
+CNN                         0.9963  0.9963  0.9963  0.9963    0.0121    0.004%    273.1   13.725
+Gộp mô hình (soft voting)   0.9993  0.9993  0.9993  0.9993    0.0156    0.000%   1452.4   70.853
+
+[val]
+Mô hình                        Acc    Prec     Rec      F1  log-loss sai p>.99   Fit(s)  Pred(s)
+Tâm gần nhất (baseline)     0.8048  0.8103  0.8014  0.8031         —         —      0.2    0.020
+Multinomial Naive Bayes     0.8229  0.8317  0.8200  0.8220    2.2585   10.350%      0.5    0.053
+Logistic Regression         0.9197  0.9191  0.9188  0.9188    0.2912    0.190%      2.7    0.069
+MLP                         0.9831  0.9830  0.9830  0.9830    0.0622    0.230%    247.7    0.141
+Random Forest               0.9694  0.9693  0.9693  0.9693    0.2249    0.000%      7.3    0.144
+CNN                         0.9855  0.9854  0.9855  0.9854    0.0493    0.120%    273.1    2.832
+Gộp mô hình (soft voting)   0.9913  0.9913  0.9913  0.9913    0.0472    0.010%   1452.4   14.166
+
+[test]
+Mô hình                        Acc    Prec     Rec      F1  log-loss sai p>.99   Fit(s)  Pred(s)
+Tâm gần nhất (baseline)     0.8198  0.8230  0.8167  0.8178         —         —      0.2    0.018
+Multinomial Naive Bayes     0.8356  0.8431  0.8325  0.8342    2.0074    9.100%      0.5    0.055
+Logistic Regression         0.9238  0.9229  0.9226  0.9227    0.2761    0.150%      2.7    0.069
+MLP                         0.9836  0.9835  0.9835  0.9835    0.0537    0.080%    247.7    0.140
+Random Forest               0.9668  0.9666  0.9665  0.9666    0.2180    0.000%      7.3    0.152
+CNN                         0.9882  0.9881  0.9882  0.9881    0.0391    0.130%    273.1    2.878
+Gộp mô hình (soft voting)   0.9915  0.9915  0.9915  0.9915    0.0410    0.000%   1452.4   14.505
+
+LƯU Ý thời gian: các mô hình chạy với số luồng khác nhau (Tâm gần nhất (baseline): 1, Multinomial Naive Bayes: 1, Logistic Regression: 8, MLP: 8, Random Forest: 14, CNN: 8, Gộp mô hình (soft voting): 8). So thời gian huấn luyện phải kèm điều kiện này.
+
+Lỗi ở 5 cặp EDA 3.1 (cộng hai chiều) trên val | tỉ lệ trong tổng lỗi (rải đều: 11.1%):
+Mô hình                       4–9    7–9    5–8    3–5    3–8  tổng lỗi   5 cặp
+Tâm gần nhất (baseline)       195    116     51    181    168      1952   36.4%   5 cặp nhầm nhiều nhất: 4–9, 3–5, 3–8, 7–9, 1–5
+Multinomial Naive Bayes       246    127    116    125    111      1771   40.9%   5 cặp nhầm nhiều nhất: 4–9, 7–9, 3–5, 5–8, 3–8
+Logistic Regression            63     63     48     61     60       803   36.7%   5 cặp nhầm nhiều nhất: 4–9, 7–9, 3–5, 3–8, 5–8
+MLP                             9      9      5     10     10       169   25.4%   5 cặp nhầm nhiều nhất: 2–7, 2–3, 3–5, 3–8, 4–9
+Random Forest                  19     26     11     15     22       306   30.4%   5 cặp nhầm nhiều nhất: 7–9, 3–8, 4–9, 2–3, 2–7
+CNN                            12      6      8      6     10       145   29.0%   5 cặp nhầm nhiều nhất: 4–9, 3–8, 8–9, 5–8, 2–3
+Gộp mô hình (soft voting)       7      6      5      4      4        87   29.9%   5 cặp nhầm nhiều nhất: 4–9, 8–9, 7–9, 2–7, 5–8
+
+Trạng thái giả thuyết EDA 5.6 (kiểm chứng trên val; tâm gần nhất chỉ là mốc):
+  H1 (LR chính xác hơn và xác suất đáng tin hơn MNB): ủng hộ | acc 0.9197 vs 0.8229; log-loss 0.2912 vs 2.2585; sai mà p>0,99 0.190% vs 10.350%
+  H2 (Random Forest vượt LR): ủng hộ | acc 0.9694 vs 0.9197; F1 0.9693 vs 0.9188
+  H2 (MLP vượt LR): ủng hộ | acc 0.9831 vs 0.9197; F1 0.9830 vs 0.9188
+  H3 (a) lỗi của mô hình tuyến tính dồn vào 5 cặp EDA 3.1 (≥ 22.2% lỗi, ≥ 3/5 cặp trong top 5):
+      Multinomial Naive Bayes    40.9% lỗi, 5/5 cặp trong top 5 -> đạt
+      Logistic Regression        36.7% lỗi, 5/5 cặp trong top 5 -> đạt
+  H3 (b) mô hình phi tuyến giảm lỗi ở 5 cặp nhiều hơn mức giảm chung (so với LR):
+      Random Forest              giảm 68% ở 5 cặp, 62% tổng lỗi -> đạt; lỗi còn lại: 30.4% ở 5 cặp, 3/5 trong top 5
+      MLP                        giảm 85% ở 5 cặp, 79% tổng lỗi -> đạt; lỗi còn lại: 25.4% ở 5 cặp, 3/5 trong top 5
+  H3: ủng hộ
+
+Nâng cao (ngoài EDA 5.6, cùng số đo với H2, H3; không tính vào kết luận giả thuyết):
+  CNN                        acc 0.9855 (LR 0.9197); so với LR giảm 86% lỗi ở 5 cặp, 82% tổng lỗi; lỗi còn lại: 29.0% ở 5 cặp, 3/5 trong top 5
+  Gộp mô hình (soft voting)  acc 0.9913 (LR 0.9197); so với LR giảm 91% lỗi ở 5 cặp, 89% tổng lỗi; lỗi còn lại: 29.9% ở 5 cặp, 3/5 trong top 5
+  RF + CNN ens, CNN × 8 so với CNN đơn: acc 0.9913 vs 0.9855; lỗi trên val 87 vs 145 (-40%), đổi lại thời gian huấn luyện 1452 s vs 273 s
+
+H4 (số đo CHUNG cho mọi mô hình): accuracy giảm khi hoán vị khối 4×4 trên val. Spearman với tổng Fisher của khối; ủng hộ khi ρ ≥ 0.7 ở mọi mô hình:
+  Tâm gần nhất (baseline)    ρ = 0.813 | khối quan trọng nhất làm giảm acc 0.0322
+  Multinomial Naive Bayes    ρ = 0.900 | khối quan trọng nhất làm giảm acc 0.0361
+  Logistic Regression        ρ = 0.914 | khối quan trọng nhất làm giảm acc 0.0846
+  MLP                        ρ = 0.880 | khối quan trọng nhất làm giảm acc 0.0490
+  Random Forest              ρ = 0.876 | khối quan trọng nhất làm giảm acc 0.0535
+  CNN                        ρ = 0.930 | khối quan trọng nhất làm giảm acc 0.0488
+  H4: ủng hộ (ρ khối của các mô hình từ 0.876 đến 0.914; không tính mốc tâm gần nhất và hướng nâng cao)
+
+Đối chiếu scikit-learn (cùng đặc trưng, cùng siêu tham số; src/experiments/sklearn_reference.py):
+Mô hình                    test acc tự cài  sklearn   chênh  fit tự cài  sklearn
+Multinomial Naive Bayes             0.8356   0.8356 +0.0000         0.5      2.9
+Logistic Regression                 0.9238   0.9167 +0.0071         2.7      7.0
+MLP                                 0.9836   0.9823 +0.0013       247.7    574.4
+
+Phương án ensemble bị loại (EDA 5.3; sklearn, cùng đặc trưng và số cây với RF, không tinh chỉnh):
+Mô hình                                               val acc  test acc  fit (s)  luồng
+Random Forest (sklearn, cấu hình cuối)                 0.9694    0.9668      7.3     14
+AdaBoost (sklearn; SAMME, cây sâu 3, 150 cây, lr 0,5)   0.9047    0.9141    480.1      1
+HistGradientBoosting (sklearn; 150 vòng, lr 0,1)       0.9752    0.9781    149.9     14
+
+Đã ghi results/comparison/log.txt, results/comparison/comparison.csv, summary.json và figures/

@@ -1,0 +1,47 @@
+{
+ "random_forest": {
+  "model": "Random Forest (sklearn, cấu hình cuối)",
+  "fit_time": 7.255706900032237,
+  "n_jobs": 14,
+  "val": {
+   "accuracy": 0.9694,
+   "f1_macro": 0.9693051856591927,
+   "predict_time": 0.143556899856776
+  },
+  "test": {
+   "accuracy": 0.9668,
+   "f1_macro": 0.9665725825506994,
+   "predict_time": 0.15197880007326603
+  }
+ },
+ "adaboost": {
+  "model": "AdaBoost (sklearn; SAMME, cây sâu 3, 150 cây, lr 0,5)",
+  "fit_time": 480.0961020998657,
+  "n_jobs": 1,
+  "val": {
+   "accuracy": 0.9047,
+   "f1_macro": 0.9045886882942373,
+   "predict_time": 2.9275934000033885
+  },
+  "test": {
+   "accuracy": 0.9141,
+   "f1_macro": 0.9135622315922101,
+   "predict_time": 2.900526000186801
+  }
+ },
+ "gradient_boosting": {
+  "model": "HistGradientBoosting (sklearn; 150 vòng, lr 0,1)",
+  "fit_time": 149.90554399997927,
+  "n_jobs": 14,
+  "val": {
+   "accuracy": 0.9752,
+   "f1_macro": 0.9750937813076461,
+   "predict_time": 2.122999200131744
+  },
+  "test": {
+   "accuracy": 0.9781,
+   "f1_macro": 0.9779200124656633,
+   "predict_time": 1.7747711997944862
+  }
+ }
+}

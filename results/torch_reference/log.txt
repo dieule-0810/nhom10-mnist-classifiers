@@ -1,0 +1,11 @@
+Cấu hình (results/cnn/final_metrics.json): {'scale': 'scalar', 'channels': [16, 32], 'hidden': 128, 'lr': 0.001, 'batch_size': 128, 'max_epochs': 20, 'patience': 3} | torch 2.12.0+cpu, 8 luồng
+
+        acc NumPy  acc torch    chênh  F1 NumPy  F1 torch  dự đoán NumPy  dự đoán torch
+train      0.9963     0.9967  -0.0004    0.9963    0.9967         13.72s          2.93s
+val        0.9855     0.9880  -0.0025    0.9854    0.9879          2.83s          0.66s
+test       0.9882     0.9888  -0.0006    0.9881    0.9887          2.88s          0.56s
+
+Huấn luyện: NumPy 273 s (8 epoch, giữ epoch 5) | torch 84 s (10 epoch, giữ epoch 7) | NumPy chậm hơn × 3.2
+Hai bản khác khởi tạo (He chuẩn so với Kaiming đều của torch) và khác dãy ngẫu nhiên trộn mini-batch, nên chỉ kỳ vọng accuracy gần nhau (cỡ độ lệch do seed), không trùng từng ảnh.
+
+Đã ghi results/torch_reference/summary.json và log.txt

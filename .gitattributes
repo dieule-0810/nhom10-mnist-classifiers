@@ -1,0 +1,10 @@
+# Chuẩn hoá xuống dòng: trong Git lưu LF, trên Windows checkout ra CRLF.
+# Tránh việc git status báo "modified" cả file chỉ vì khác xuống dòng.
+* text=auto
+*.py text eol=lf
+*.md text
+*.ipynb text eol=lf
+*.png binary
+*.pdf binary
+*.zip binary
+*-ubyte binary

@@ -1,0 +1,105 @@
+train (50000, 784) | val (10000, 784) | test (10000, 784) | quick = False
+
+=== Dựng lại mô hình cuối từ results/<key>/final_metrics.json ===
+Random Forest       : val acc 0.9694 (final_metrics.json: 0.9694) | 7 s
+Logistic Regression : val acc 0.9197 (final_metrics.json: 0.9197) | 3 s
+Naive Bayes         : val acc 0.8229 (final_metrics.json: 0.8229) | 0 s
+MLP                 : val acc 0.9831 (final_metrics.json: 0.9831) | 276 s
+CNN-s0              : val acc 0.9855 | 272 s
+CNN-s1              : val acc 0.9864 | 205 s
+CNN-s2              : val acc 0.9891 | 374 s
+CNN-s3              : val acc 0.9879 | 340 s
+CNN-s4              : val acc 0.9870 | 254 s
+
+=== E1. Diversity trên val: % cùng sai = cả hai sai / ít nhất một sai ===
+cặp                          cả hai sai  ≥ 1 sai  % cùng sai
+random_forest vs logistic_regression        240      869       27.6%
+random_forest vs naive_bayes        264     1813       14.6%
+random_forest vs mlp                122      353       34.6%
+random_forest vs CNN-s0              92      359       25.6%
+random_forest vs CNN-s1              93      349       26.6%
+random_forest vs CNN-s2              72      343       21.0%
+random_forest vs CNN-s3              78      349       22.3%
+random_forest vs CNN-s4              73      363       20.1%
+logistic_regression vs naive_bayes        624     1950       32.0%
+logistic_regression vs mlp          147      825       17.8%
+logistic_regression vs CNN-s0        104      844       12.3%
+logistic_regression vs CNN-s1        110      829       13.3%
+logistic_regression vs CNN-s2         83      829       10.0%
+logistic_regression vs CNN-s3         95      829       11.5%
+logistic_regression vs CNN-s4         92      841       10.9%
+naive_bayes vs mlp                  131     1809        7.2%
+naive_bayes vs CNN-s0                96     1820        5.3%
+naive_bayes vs CNN-s1               107     1800        5.9%
+naive_bayes vs CNN-s2                84     1796        4.7%
+naive_bayes vs CNN-s3                92     1800        5.1%
+naive_bayes vs CNN-s4                92     1809        5.1%
+mlp vs CNN-s0                        80      234       34.2%
+mlp vs CNN-s1                        81      224       36.2%
+mlp vs CNN-s2                        72      206       35.0%
+mlp vs CNN-s3                        82      208       39.4%
+mlp vs CNN-s4                        72      227       31.7%
+CNN-s0 vs CNN-s1                     79      202       39.1%
+CNN-s0 vs CNN-s2                     67      187       35.8%
+CNN-s0 vs CNN-s3                     72      194       37.1%
+CNN-s0 vs CNN-s4                     74      201       36.8%
+CNN-s1 vs CNN-s2                     68      177       38.4%
+CNN-s1 vs CNN-s3                     72      185       38.9%
+CNN-s1 vs CNN-s4                     72      194       37.1%
+CNN-s2 vs CNN-s3                     64      166       38.6%
+CNN-s2 vs CNN-s4                     60      179       33.5%
+CNN-s3 vs CNN-s4                     64      187       34.2%
+3 CNN (CNN-s0, CNN-s1, CNN-s2): 232 ảnh có ít nhất 1 mạng sai, 56 ảnh (24.1%) cả ba cùng sai (slide 11: 20,0%)
+Quy tắc nhanh (slide 7): % cùng sai > 60% thì gộp gần như không thêm thông tin.
+
+=== E2. Soft voting các mô hình cổ điển (val) ===
+random_forest + logistic_regression: 0.9460 | tốt nhất trong nhóm random_forest 0.9694 | chênh -0.0234
+random_forest + naive_bayes: 0.8478 | tốt nhất trong nhóm random_forest 0.9694 | chênh -0.1216
+random_forest + mlp : 0.9826 | tốt nhất trong nhóm mlp 0.9831 | chênh -0.0005
+logistic_regression + naive_bayes: 0.8518 | tốt nhất trong nhóm logistic_regression 0.9197 | chênh -0.0679
+logistic_regression + mlp: 0.9763 | tốt nhất trong nhóm mlp 0.9831 | chênh -0.0068
+naive_bayes + mlp   : 0.9120 | tốt nhất trong nhóm mlp 0.9831 | chênh -0.0711
+random_forest + logistic_regression + naive_bayes: 0.9135 | tốt nhất trong nhóm random_forest 0.9694 | chênh -0.0559
+random_forest + logistic_regression + mlp: 0.9773 | tốt nhất trong nhóm mlp 0.9831 | chênh -0.0058
+random_forest + naive_bayes + mlp: 0.9682 | tốt nhất trong nhóm mlp 0.9831 | chênh -0.0149
+logistic_regression + naive_bayes + mlp: 0.9447 | tốt nhất trong nhóm mlp 0.9831 | chênh -0.0384
+random_forest + logistic_regression + naive_bayes + mlp: 0.9572 | tốt nhất trong nhóm mlp 0.9831 | chênh -0.0259
+Tổ hợp cổ điển tốt nhất trên val: random_forest + mlp (0.9826)
+
+=== E3. Seed ensemble CNN trên val: k = 1..5 mạng ===
+Từng mạng: CNN-s0 0.9855 | CNN-s1 0.9864 | CNN-s2 0.9891 | CNN-s3 0.9879 | CNN-s4 0.9870 | trung bình 0.9872
+  k  soft (k đầu)  soft TB mọi tổ hợp     min     max  hard (k đầu)
+  1        0.9855              0.9872  0.9855  0.9891        0.9855
+  2        0.9887              0.9897  0.9883  0.9908        0.9886
+  3        0.9902              0.9904  0.9893  0.9911        0.9902
+  4        0.9911              0.9908  0.9900  0.9911        0.9912
+  5        0.9912              0.9912  0.9912  0.9912        0.9916
+Ensemble 5 mạng: +0.0021 so với mạng tốt nhất, +0.0040 so với trung bình từng mạng
+Hard voting chỉ đếm phiếu, bỏ mất độ tự tin: một mạng rất chắc đúng thua hai mạng hơi nghiêng về nhãn sai.
+
+=== E4. CNN ensemble (5 mạng) trộn với mô hình cổ điển: trọng số w của CNN chọn trên val ===
+Chỉ CNN ensemble: 0.9912
+CNN-ens + random_forest : w=1: 0.9901 | w=2: 0.9909 | w=3: 0.9911 | w=5: 0.9912 | w=8: 0.9913  -> chọn w = 8
+CNN-ens + logistic_regression: w=1: 0.9837 | w=2: 0.9893 | w=3: 0.9907 | w=5: 0.9909 | w=8: 0.9912  -> chọn w = 8
+CNN-ens + naive_bayes   : w=1: 0.9102 | w=2: 0.9878 | w=3: 0.9900 | w=5: 0.9907 | w=8: 0.9909  -> chọn w = 8
+CNN-ens + mlp           : w=1: 0.9886 | w=2: 0.9906 | w=3: 0.9911 | w=5: 0.9908 | w=8: 0.9910  -> chọn w = 3
+CNN-ens + random_forest + mlp: w=1: 0.9881 | w=2: 0.9899 | w=3: 0.9905 | w=5: 0.9907 | w=8: 0.9909  -> chọn w = 8
+Tốt nhất trên val: CNN-ens (w = 8) + random_forest: 0.9913
+
+=== E5. Bảng tổng kết trên test (cấu hình đã chọn trên val; test dùng một lần) ===
+phương án                                   val acc  test acc  ảnh sai  log-loss
+random_forest                                0.9694    0.9668      332    0.2180
+logistic_regression                          0.9197    0.9238      762    0.2761
+naive_bayes                                  0.8229    0.8356     1644    2.0074
+mlp                                          0.9831    0.9836      164    0.0537
+CNN đơn (CNN-s0)                             0.9855    0.9882      118    0.0391
+Soft voting: RF + MLP                        0.9826    0.9841      159    0.1170
+CNN ensemble 5 seed                          0.9912    0.9915       85    0.0249
+RF + CNN ens, cùng trọng số                  0.9901    0.9907       93    0.1053
+RF + CNN ens, CNN × 8                        0.9913    0.9915       85    0.0410
+Chọn theo val: RF + CNN ens, CNN × 8 -> test 0.9915 (85 ảnh sai)
+Đã ghi results/ensemble/final_metrics.json (RF + CNN ens, CNN × 8; fit 1452 s cộng dồn 6 thành viên)
+
+Tổng thời gian: 30.6 phút
+
+Đã ghi results/ensemble/summary.json, log.txt và figures/

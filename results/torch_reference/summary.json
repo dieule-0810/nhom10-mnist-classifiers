@@ -1,0 +1,48 @@
+{
+ "config": {
+  "scale": "scalar",
+  "channels": [
+   16,
+   32
+  ],
+  "hidden": 128,
+  "lr": 0.001,
+  "batch_size": 128,
+  "max_epochs": 20,
+  "patience": 3
+ },
+ "torch_version": "2.12.0+cpu",
+ "threads": 8,
+ "fit_time": 84.40507640014403,
+ "best_epoch": 7,
+ "epochs_run": 10,
+ "ours": {
+  "fit_time": 273.1244971000124,
+  "best_epoch": 5,
+  "epochs_run": 8
+ },
+ "train": {
+  "accuracy": 0.99672,
+  "f1_macro": 0.9967296742405696,
+  "predict_time": 2.930734899826348,
+  "ours_accuracy": 0.9963,
+  "ours_f1_macro": 0.9963100768604235,
+  "ours_predict_time": 13.724987800000235
+ },
+ "val": {
+  "accuracy": 0.988,
+  "f1_macro": 0.9879471036137779,
+  "predict_time": 0.6592395999468863,
+  "ours_accuracy": 0.9855,
+  "ours_f1_macro": 0.9854495591986365,
+  "ours_predict_time": 2.831695699831471
+ },
+ "test": {
+  "accuracy": 0.9888,
+  "f1_macro": 0.9887389485309306,
+  "predict_time": 0.5622606000397354,
+  "ours_accuracy": 0.9882,
+  "ours_f1_macro": 0.988133932290024,
+  "ours_predict_time": 2.8781690998002887
+ }
+}

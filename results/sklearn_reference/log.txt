@@ -1,0 +1,16 @@
+Mô hình                         val acc  test acc  test F1  fit (s) pred (s)  n_jobs
+Naive Bayes             tự cài   0.8229    0.8356   0.8342      0.5    0.055  1
+                       sklearn   0.8229    0.8356   0.8342      2.9    0.160  1
+Logistic Regression     tự cài   0.9197    0.9238   0.9227      2.7    0.069  8
+                       sklearn   0.9182    0.9167   0.9155      7.0    0.134  8
+                         lbfgs   0.9216    0.9238   0.9227    543.4    0.147  8   (LogisticRegression(lbfgs tới hội tụ, C = 1/(λN) = 0.02))
+MLP                     tự cài   0.9831    0.9836   0.9835    247.7    0.140  8
+                       sklearn   0.9822    0.9823   0.9822    574.4    0.174  8
+Đã ghi results/sklearn_reference/summary.json (naive_bayes, logistic_regression, mlp)
+
+Phương án ensemble bị loại (EDA 5.3): cùng đặc trưng với RF (crop20, 2 bin), siêu tham số cố định, không tinh chỉnh.
+Mô hình                                               val acc  test acc  test F1  fit (s) pred (s)  luồng
+Random Forest (sklearn, cấu hình cuối)                 0.9694    0.9668   0.9666      7.3    0.152  14
+AdaBoost (sklearn; SAMME, cây sâu 3, 150 cây, lr 0,5)   0.9047    0.9141   0.9136    480.1    2.901  1
+HistGradientBoosting (sklearn; 150 vòng, lr 0,1)       0.9752    0.9781   0.9779    149.9    1.775  14
+Đã ghi results/sklearn_reference/ensemble_alternatives.json

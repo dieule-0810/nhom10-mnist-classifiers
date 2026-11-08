@@ -1,0 +1,83 @@
+{
+ "naive_bayes": {
+  "sklearn_model": "MultinomialNB(alpha=0.0001)",
+  "n_jobs": 1,
+  "fit_time": 2.946257300209254,
+  "ours_fit_time": 0.5086426001507789,
+  "ours_quick": false,
+  "val": {
+   "accuracy": 0.8229,
+   "f1_macro": 0.8219777427310753,
+   "predict_time": 0.16958549991250038,
+   "ours_accuracy": 0.8229,
+   "ours_f1_macro": 0.8219777427310753,
+   "ours_predict_time": 0.05256260000169277
+  },
+  "test": {
+   "accuracy": 0.8356,
+   "f1_macro": 0.8341825288927616,
+   "predict_time": 0.1601075001526624,
+   "ours_accuracy": 0.8356,
+   "ours_f1_macro": 0.8341825288927616,
+   "ours_predict_time": 0.054634900065138936
+  }
+ },
+ "logistic_regression": {
+  "sklearn_model": "MLPClassifier(không lớp ẩn = softmax regression; sgd, 13 epoch)",
+  "n_jobs": 8,
+  "fit_time": 6.980188099900261,
+  "ours_fit_time": 2.7015867999289185,
+  "ours_quick": false,
+  "val": {
+   "accuracy": 0.9182,
+   "f1_macro": 0.9173447732194895,
+   "predict_time": 0.11517710005864501,
+   "ours_accuracy": 0.9197,
+   "ours_f1_macro": 0.918806355079733,
+   "ours_predict_time": 0.06927779992111027
+  },
+  "test": {
+   "accuracy": 0.9167,
+   "f1_macro": 0.9155192540862206,
+   "predict_time": 0.1341063000727445,
+   "ours_accuracy": 0.9238,
+   "ours_f1_macro": 0.9226804356714331,
+   "ours_predict_time": 0.06933959992602468
+  },
+  "converged": {
+   "sklearn_model": "LogisticRegression(lbfgs tới hội tụ, C = 1/(λN) = 0.02)",
+   "fit_time": 543.36461769999,
+   "val": {
+    "accuracy": 0.9216,
+    "f1_macro": 0.9207361974579813
+   },
+   "test": {
+    "accuracy": 0.9238,
+    "f1_macro": 0.922674929864819
+   }
+  }
+ },
+ "mlp": {
+  "sklearn_model": "MLPClassifier(sgd, 42 epoch)",
+  "n_jobs": 8,
+  "fit_time": 574.3786674998701,
+  "ours_fit_time": 247.737532899715,
+  "ours_quick": false,
+  "val": {
+   "accuracy": 0.9822,
+   "f1_macro": 0.9820720048000655,
+   "predict_time": 0.20438590017147362,
+   "ours_accuracy": 0.9831,
+   "ours_f1_macro": 0.9829793216618203,
+   "ours_predict_time": 0.14107479993253946
+  },
+  "test": {
+   "accuracy": 0.9823,
+   "f1_macro": 0.9822108994083315,
+   "predict_time": 0.17449399991892278,
+   "ours_accuracy": 0.9836,
+   "ours_f1_macro": 0.9835301766104072,
+   "ours_predict_time": 0.1404688002076
+  }
+ }
+}

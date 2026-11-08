@@ -1,0 +1,35 @@
+# Python >= 3.10
+# Tạo môi trường (Windows):
+#   python -m venv .venv
+#   .venv\Scripts\activate              (macOS/Linux: source .venv/bin/activate)
+#   python -m pip install -r requirements.txt
+
+# --- Tính toán: mọi mô hình tự cài trong src/models/ chỉ dùng numpy ---
+numpy>=1.26
+
+# --- Tải MNIST: src/data/download.py (bản 2.x tải được bộ dữ liệu công khai không cần token) ---
+kaggle>=2.0
+
+# --- Vẽ hình (thí nghiệm, EDA) ---
+matplotlib>=3.8
+
+# --- Giới hạn số luồng BLAS trong script LR / MLP / CNN / ensemble (đã đi kèm scikit-learn, ghi rõ vì src/ import trực tiếp) ---
+threadpoolctl>=3.1
+
+# --- scikit-learn: mô hình Random Forest (src/models/random_forest.py, nhánh ensemble dùng thư viện); ngoài ra là
+#     tiện ích chuẩn, không thay các mô hình tự cài: chia train/val theo tầng (src/data/preprocess.py)
+#     và tính độ đo accuracy/P/R/F1/ma trận nhầm lẫn (src/evaluation/metrics.py),
+#     scipy tính tương quan Spearman (src/evaluation/analysis.py) và tâm khối lượng (demo/drawing.py).
+#     Cũng dùng để đối chiếu trong tests/ và src/experiments/sklearn_reference.py ---
+scikit-learn>=1.4
+scipy>=1.11
+
+# --- Chỉ dùng để đối chiếu CNN: tests/check_cnn.py và src/experiments/torch_reference.py (bản CPU là đủ) ---
+torch>=2.2
+
+# --- Demo vẽ chữ số: demo/app.py ---
+gradio>=5.0
+
+# --- Chạy notebook (EDA, notebooks/results.ipynb) ---
+jupyterlab>=4.0
+ipykernel>=6.25

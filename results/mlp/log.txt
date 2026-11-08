@@ -1,0 +1,129 @@
+train (50000, 784) | val (10000, 784) | test (10000, 784) | 8 luồng BLAS | quick = False
+
+=== E0. Baseline 784-256-128-10 (10 epoch) ===
+epoch: 0.9569 | 0.9668 | 0.9695 | 0.9718 | 0.9740 | 0.9739 | 0.9745 | 0.9766 | 0.9732 | 0.9755
+Val accuracy tốt nhất 0.9766 (Lab 04 yêu cầu ≥ 0,97) | huấn luyện 13.6 s
+
+=== E1. Learning rate γ × momentum α (5 epoch); γ_eff = γ / (1 − α) ===
+α = 0.0  γ = 0.005  γ_eff = 0.005 : val acc 0.9272
+α = 0.0  γ = 0.01   γ_eff = 0.01  : val acc 0.9445
+α = 0.0  γ = 0.05   γ_eff = 0.05  : val acc 0.9682
+α = 0.0  γ = 0.1    γ_eff = 0.1   : val acc 0.9707
+α = 0.0  γ = 0.5    γ_eff = 0.5   : phân kỳ
+α = 0.5  γ = 0.005  γ_eff = 0.01  : val acc 0.9453
+α = 0.5  γ = 0.01   γ_eff = 0.02  : val acc 0.9580
+α = 0.5  γ = 0.05   γ_eff = 0.1   : val acc 0.9725
+α = 0.5  γ = 0.1    γ_eff = 0.2   : val acc 0.9734
+α = 0.5  γ = 0.5    γ_eff = 1     : val acc 0.5771
+α = 0.9  γ = 0.005  γ_eff = 0.05  : val acc 0.9680
+α = 0.9  γ = 0.01   γ_eff = 0.1   : val acc 0.9730
+α = 0.9  γ = 0.05   γ_eff = 0.5   : val acc 0.9740
+α = 0.9  γ = 0.1    γ_eff = 1     : val acc 0.9669
+α = 0.9  γ = 0.5    γ_eff = 5     : phân kỳ
+Chọn γ = 0.05, α = 0.9 (val acc 0.9740)
+
+=== E2. Kích thước batch (5 epoch, γ = 0.05, α = 0.9) ===
+ batch | số cập nhật | s/epoch | val acc
+    16 |       15625 |   10.55 |  0.0987
+    64 |        3910 |    3.07 |  0.9713
+   128 |        1955 |    1.43 |  0.9740
+   256 |         980 |    0.96 |  0.9742
+  1024 |         245 |    0.69 |  0.9659
+Chọn batch = 256
+
+=== E3. Độ rộng và độ sâu (5 epoch) ===
+                 kiến trúc |   tham số | train acc | val acc
+                 784-64-10 |    50.890 |    0.9793 |  0.9631
+                784-256-10 |   203.530 |    0.9957 |  0.9765
+               784-1024-10 |   814.090 |    0.9994 |  0.9798
+            784-256-128-10 |   235.146 |    0.9914 |  0.9740
+    784-256-256-256-256-10 |   400.906 |    0.9907 |  0.9726
+Chọn kiến trúc hidden = (1024,)
+
+=== E4. Hàm kích hoạt và vanishing gradient (mạng 784 → 128 × 6 → 10, 5 epoch) ===
+sigmoid: ‖∂J/∂W‖ lớp 1 = 8.81e-04 | lớp cuối = 1.19e+00 | lớp cuối / lớp 1 = 1355.1 | val acc = 0.1124
+   tanh: ‖∂J/∂W‖ lớp 1 = 1.40e+00 | lớp cuối = 5.08e-01 | lớp cuối / lớp 1 = 0.4 | val acc = 0.9651
+   relu: ‖∂J/∂W‖ lớp 1 = 4.27e+00 | lớp cuối = 4.86e+00 | lớp cuối / lớp 1 = 1.1 | val acc = 0.9689
+
+=== E5. Khởi tạo trọng số ===
+(a)   const: số nơ-ron ẩn khác nhau =  5 / 64 sau 3 epoch | val acc = 0.8612
+(a)  xavier: số nơ-ron ẩn khác nhau = 64 / 64 sau 3 epoch | val acc = 0.9606
+(b)  xavier: std đầu ra ReLU lớp 1 = 0.724 | lớp 10 = 0.0324
+(b)      he: std đầu ra ReLU lớp 1 = 0.843 | lớp 10 = 0.9546
+
+=== E6. Điều chuẩn L2 và dropout (15 epoch) ===
+          cấu hình | train acc | val acc | val loss | val loss nhỏ nhất
+  không điều chuẩn |    0.9984 |  0.9769 |   0.1280 |            0.1042
+         L2 λ=1e-4 |    1.0000 |  0.9818 |   0.0817 |            0.0817
+         L2 λ=1e-3 |    0.9922 |  0.9745 |   0.0823 |            0.0741
+     dropout p=0.2 |    0.9970 |  0.9770 |   0.0897 |            0.0878
+     dropout p=0.5 |    0.9828 |  0.9688 |   0.1176 |            0.1124
+Chọn điều chuẩn: L2 λ=1e-4
+
+=== E7. Ba ứng viên, tối đa 50 epoch, early stopping patience 5 ===
+                ứng viên | epoch tốt nhất | val acc | val loss | thời gian
+      A: gộp E1+E2+E3+E6 |              9 |  0.9802 |   0.0729 |     52.7s
+   B: baseline + E3 + E6 |             42 |  0.9831 |   0.0622 |    247.7s
+        C: baseline + E6 |              4 |  0.9733 |   0.0931 |     10.4s
+Chọn B: baseline + E3 + E6: {"hidden": [1024], "activation": "relu", "init": "he", "lr": 0.05, "momentum": 0.9, "batch_size": 128, "weight_decay": 0.0001, "p_drop": 0.0}
+Dừng ở epoch 47, khôi phục epoch 42
+
+=== E8. Đánh giá cuối (test dùng một lần) ===
+Huấn luyện: 247.7 s (8 luồng BLAS) | 814.090 tham số
+train: acc 1.0000 | P 1.0000 | R 1.0000 | F1 1.0000 | dự đoán 0.69 s
+  val: acc 0.9831 | P 0.9830 | R 0.9830 | F1 0.9830 | dự đoán 0.14 s
+ test: acc 0.9836 | P 0.9835 | R 0.9835 | F1 0.9835 | dự đoán 0.14 s
+
+[train] ma trận nhầm lẫn (hàng: nhãn thật, cột: dự đoán)
+ thật\đoán    0    1    2    3    4    5    6    7    8    9   đúng %
+         0 4936    0    0    0    0    0    0    0    0    0   100.0%
+         1    0 5618    0    0    0    0    0    0    0    0   100.0%
+         2    0    0 4965    0    0    0    0    0    0    0   100.0%
+         3    0    0    0 5109    0    0    0    0    0    0   100.0%
+         4    0    0    0    0 4868    0    0    0    0    0   100.0%
+         5    0    0    0    0    0 4518    0    0    0    0   100.0%
+         6    0    0    0    0    0    0 4932    0    0    0   100.0%
+         7    0    0    0    0    0    0    0 5221    0    0   100.0%
+         8    0    0    0    0    0    0    0    0 4876    0   100.0%
+         9    0    0    0    0    0    0    0    0    0 4957   100.0%
+
+[val] ma trận nhầm lẫn (hàng: nhãn thật, cột: dự đoán)
+ thật\đoán    0    1    2    3    4    5    6    7    8    9   đúng %
+         0  984    1    0    0    0    0    0    0    1    1    99.7%
+         1    0 1118    4    0    0    0    0    1    1    0    99.5%
+         2    2    2  974    4    3    0    3    2    3    0    98.1%
+         3    1    0    7  996    0    8    1    1    6    2    97.5%
+         4    0    3    1    0  959    0    1    4    1    5    98.5%
+         5    0    2    0    2    2  886    5    1    3    2    98.1%
+         6    8    2    0    1    1    3  968    0    3    0    98.2%
+         7    1    3   10    1    3    0    1 1022    0    3    97.9%
+         8    3    2    1    4    3    2    2    0  954    4    97.8%
+         9    3    0    0    0    4    4    0    6    5  970    97.8%
+
+[test] ma trận nhầm lẫn (hàng: nhãn thật, cột: dự đoán)
+ thật\đoán    0    1    2    3    4    5    6    7    8    9   đúng %
+         0  971    0    1    0    1    0    1    1    4    1    99.1%
+         1    0 1126    2    1    0    1    2    1    2    0    99.2%
+         2    2    1 1013    1    1    1    1    7    5    0    98.2%
+         3    1    0    3  990    0    5    0    3    3    5    98.0%
+         4    0    0    5    0  967    0    2    0    0    8    98.5%
+         5    2    0    0    6    1  878    2    0    2    1    98.4%
+         6    4    2    1    1    4    4  942    0    0    0    98.3%
+         7    2    4    7    1    0    0    0 1008    2    4    98.1%
+         8    2    0    2    4    0    3    2    2  955    4    98.0%
+         9    2    2    0    3    8    0    1    6    1  986    97.7%
+[val] log-loss 0.0622 | sai mà p > 0,99: 0.23% | p trung bình của mẫu sai: 0.757
+[val] Lỗi ở 5 cặp gần nhất chiếm 25.4% số lỗi (rải đều: 11.1%); lỗi theo cặp MLP {(4, 9): 9, (7, 9): 9, (5, 8): 5, (3, 5): 10, (3, 8): 10}
+[val]     5 cặp nhầm nhiều nhất: [(2, 7, 12), (2, 3, 11), (3, 5, 10), (3, 8, 10), (4, 9, 9)]
+[val] So với tâm gần nhất: acc 0.8048; MLP giảm lỗi 91.3% tổng, theo cặp (4, 9): 95.4%, (7, 9): 92.2%, (5, 8): 90.2%, (3, 5): 94.5%, (3, 8): 94.0%
+[test] log-loss 0.0537 | sai mà p > 0,99: 0.08% | p trung bình của mẫu sai: 0.749
+[test] Lỗi ở 5 cặp gần nhất chiếm 29.9% số lỗi (rải đều: 11.1%); lỗi theo cặp MLP {(4, 9): 16, (7, 9): 10, (5, 8): 5, (3, 5): 11, (3, 8): 7}
+[test]     5 cặp nhầm nhiều nhất: [(4, 9, 16), (2, 7, 14), (3, 5, 11), (7, 9, 10), (3, 9, 8)]
+[test] So với tâm gần nhất: acc 0.8198; MLP giảm lỗi 90.9% tổng, theo cặp (4, 9): 92.1%, (7, 9): 87.3%, (5, 8): 89.6%, (3, 5): 93.3%, (3, 8): 95.0%
+
+W^(1): 72 dead pixel | tương quan(ΔW, W_0) trên dead pixel = -0.998 | L2 co phần khởi tạo còn 44% | ‖ΔW‖ = 26.7, phần học từ dữ liệu ‖R‖ = 9.6
+Hoán vị khối 4×4 trên val (16 s, 10000 ảnh): khối quan trọng nhất làm giảm acc 0.0490
+
+Tổng thời gian: 13.1 phút
+
+Đã ghi results/mlp/summary.json, log.txt và figures/

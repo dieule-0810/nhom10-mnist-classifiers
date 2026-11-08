@@ -1,0 +1,13 @@
+# Môi trường, cache
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.pytest_cache/
+.DS_Store
+.vscode/
+.idea/
+
+# Kết quả do script sinh ra: results/ nằm trong Git (lần chạy đầy đủ), xem README mục "Tái lập kết quả".
+# Riêng mô hình Random Forest đã lưu (hơn 100 MB) quá giới hạn GitHub: notebook tự huấn luyện lại.
+results/random_forest/model.pkl

@@ -1,0 +1,90 @@
+train (50000, 784) | val (10000, 784) | test (10000, 784) | 8 luồng BLAS | quick = False
+
+=== E0. Mốc so sánh (đọc results/<mô hình>/final_metrics.json) ===
+Tâm gần nhất (baseline)   : val acc = 0.8048 | test acc = 0.8198 | fit 0.2 s
+Naive Bayes               : val acc = 0.8229 | test acc = 0.8356 | fit 0.5 s
+Logistic Regression       : val acc = 0.9197 | test acc = 0.9238 | fit 2.7 s
+MLP                       : val acc = 0.9831 | test acc = 0.9836 | fit 247.7 s
+Random Forest             : val acc = 0.9694 | test acc = 0.9668 | fit 7.3 s
+
+=== E1. Learning rate của Adam (3 epoch, không dừng sớm) ===
+lr = 0.0003: val acc (epoch cuối) = 0.9788 | val loss = 0.0725 | train loss = 0.0574 | 100 s
+lr = 0.001: val acc (epoch cuối) = 0.9837 | val loss = 0.0561 | train loss = 0.0394 | 99 s
+lr = 0.003: val acc (epoch cuối) = 0.9809 | val loss = 0.0614 | train loss = 0.0401 | 101 s
+Chọn lr = 0.001
+
+=== E2. Độ rộng: số bộ lọc mỗi khối conv (3 epoch, lr = 0.001) ===
+channels = (8, 16)  : val acc = 0.9816 | 103.018 tham số | 58 s
+channels = (16, 32) : val acc = 0.9837 | 206.922 tham số | 101 s
+channels = (32, 64) : val acc = 0.9800 | 421.642 tham số | 185 s
+Chọn channels = (16, 32) (nhanh nhất trong các cấu hình cách tốt nhất không quá 0.001)
+
+=== E3. Số epoch: tối đa 20, dừng sớm khi val loss không giảm 3 epoch ===
+Cấu hình: {"scale": "scalar", "channels": [16, 32], "hidden": 128, "lr": 0.001, "batch_size": 128, "max_epochs": 20, "patience": 3}
+epoch  1: train loss 0.2014 acc 0.9395 | val loss 0.0795 acc 0.9773 | 33 s
+epoch  2: train loss 0.0574 acc 0.9815 | val loss 0.0565 acc 0.9830 | 34 s
+epoch  3: train loss 0.0394 acc 0.9878 | val loss 0.0561 acc 0.9837 | 34 s
+epoch  4: train loss 0.0270 acc 0.9911 | val loss 0.0568 acc 0.9817 | 34 s
+epoch  5: train loss 0.0206 acc 0.9931 | val loss 0.0493 acc 0.9855 | 35 s
+epoch  6: train loss 0.0176 acc 0.9939 | val loss 0.0580 acc 0.9838 | 34 s
+epoch  7: train loss 0.0139 acc 0.9954 | val loss 0.0566 acc 0.9858 | 34 s
+epoch  8: train loss 0.0106 acc 0.9965 | val loss 0.0586 acc 0.9856 | 34 s
+Dừng sau 8 epoch, khôi phục trọng số epoch 5 (val loss nhỏ nhất) | huấn luyện 273 s
+
+=== E4. Đánh giá cuối (test dùng một lần) ===
+Huấn luyện: 273.1 s | 206.922 tham số | epoch giữ lại 5
+train: acc 0.9963 | P 0.9963 | R 0.9963 | F1 0.9963 | dự đoán 13.72 s
+  val: acc 0.9855 | P 0.9854 | R 0.9855 | F1 0.9854 | dự đoán 2.83 s
+ test: acc 0.9882 | P 0.9881 | R 0.9882 | F1 0.9881 | dự đoán 2.88 s
+
+[train] ma trận nhầm lẫn (hàng: nhãn thật, cột: dự đoán)
+ thật\đoán    0    1    2    3    4    5    6    7    8    9   đúng %
+         0 4923    0    0    0    0    0    8    0    3    2    99.7%
+         1    0 5581    6    0   13    1    3    4    9    1    99.3%
+         2    0    0 4951    6    0    0    0    6    1    1    99.7%
+         3    0    0    0 5105    0    2    0    0    1    1    99.9%
+         4    0    0    0    0 4864    0    1    1    0    2    99.9%
+         5    0    0    0    7    1 4505    0    0    4    1    99.7%
+         6    1    0    1    0    3    5 4919    0    3    0    99.7%
+         7    1    4    6    1    1    0    0 5203    3    2    99.7%
+         8    1    1    0    3    0    2    3    0 4865    1    99.8%
+         9    2    3    0    7   28    0    0   13    5 4899    98.8%
+
+[val] ma trận nhầm lẫn (hàng: nhãn thật, cột: dự đoán)
+ thật\đoán    0    1    2    3    4    5    6    7    8    9   đúng %
+         0  982    0    1    1    0    0    2    0    1    0    99.5%
+         1    0 1108    5    1    5    0    0    2    3    0    98.6%
+         2    1    1  979    6    1    0    0    2    3    0    98.6%
+         3    1    0    1 1007    0    3    0    4    6    0    98.5%
+         4    0    1    0    0  968    0    1    2    0    2    99.4%
+         5    0    1    0    3    1  890    1    0    4    3    98.6%
+         6    3    1    0    0    2    3  972    0    5    0    98.6%
+         7    0    3    4    0    4    0    0 1029    2    2    98.6%
+         8    2    1    1    4    3    4    1    0  956    3    98.1%
+         9    1    1    0    3   10    3    0    4    6  964    97.2%
+
+[test] ma trận nhầm lẫn (hàng: nhãn thật, cột: dự đoán)
+ thật\đoán    0    1    2    3    4    5    6    7    8    9   đúng %
+         0  978    0    0    0    0    0    1    1    0    0    99.8%
+         1    0 1123    2    2    0    1    3    1    2    1    98.9%
+         2    2    0 1020    3    1    0    0    4    2    0    98.8%
+         3    0    0    0 1004    0    1    0    1    2    2    99.4%
+         4    1    0    0    0  976    0    1    0    1    3    99.4%
+         5    2    0    0    5    0  883    2    0    0    0    99.0%
+         6    4    1    0    1    2    7  942    0    1    0    98.3%
+         7    0    1    5    3    1    0    0 1015    2    1    98.7%
+         8    2    0    0    2    1    4    0    1  962    2    98.8%
+         9    0    3    0    5   11    1    0    6    4  979    97.0%
+[val] log-loss 0.0493 | sai mà p > 0,99: 0.12% | p trung bình của mẫu sai: 0.782
+[val] Lỗi ở 5 cặp gần nhất chiếm 29.0% số lỗi (rải đều: 11.1%); lỗi theo cặp CNN {(4, 9): 12, (7, 9): 6, (5, 8): 8, (3, 5): 6, (3, 8): 10}
+[val]     5 cặp nhầm nhiều nhất: [(4, 9, 12), (3, 8, 10), (8, 9, 9), (5, 8, 8), (2, 3, 7)]
+[val] So với tâm gần nhất: acc 0.8048; CNN giảm lỗi 92.6% tổng, theo cặp (4, 9): 93.8%, (7, 9): 94.8%, (5, 8): 84.3%, (3, 5): 96.7%, (3, 8): 94.0%
+[test] log-loss 0.0391 | sai mà p > 0,99: 0.13% | p trung bình của mẫu sai: 0.728
+[test] Lỗi ở 5 cặp gần nhất chiếm 29.7% số lỗi (rải đều: 11.1%); lỗi theo cặp CNN {(4, 9): 14, (7, 9): 7, (5, 8): 4, (3, 5): 6, (3, 8): 4}
+[test]     5 cặp nhầm nhiều nhất: [(4, 9, 14), (2, 7, 9), (5, 6, 9), (3, 9, 7), (7, 9, 7)]
+[test] So với tâm gần nhất: acc 0.8198; CNN giảm lỗi 93.5% tổng, theo cặp (4, 9): 93.1%, (7, 9): 91.1%, (5, 8): 91.7%, (3, 5): 96.3%, (3, 8): 97.2%
+Hoán vị khối 4×4 trên val (277 s, 10000 ảnh): khối quan trọng nhất làm giảm acc 0.0488
+
+Tổng thời gian: 20.6 phút
+
+Đã ghi results/cnn/summary.json, log.txt và figures/

@@ -1,0 +1,12 @@
+300 ảnh test (seed 0), phóng to 7 lần, đặt vào khung 280×280 lệch tới ±40 pixel
+Số pixel có mực trung bình: ảnh gốc 154 | to_mnist 161 | to_mnist không bỏ quầng mờ 202
+
+Mô hình                 acc gốc  to_mnist    giữ  thu nhỏ thẳng  không bỏ quầng
+CNN                       0.983     0.987  0.993          0.540           0.987
+CNN × 5 (gộp 5 seed)      0.990     0.987  0.993          0.593           0.987
+MLP                       0.990     0.977  0.987          0.320           0.973
+Random Forest             0.980     0.970  0.980          0.310           0.870
+Logistic Regression       0.967     0.950  0.960          0.183           0.950
+Naive Bayes               0.887     0.860  0.937          0.263           0.857
+
+Đã ghi results/demo/summary.json, log.txt và figures/

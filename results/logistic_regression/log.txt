@@ -1,0 +1,135 @@
+train (50000, 784) | val (10000, 784) | test (10000, 784) | 8 luồng BLAS
+
+=== E0. Tâm gần nhất (mốc) ===
+val acc = 0.8048 | train acc = 0.8080
+
+=== E1. Chuẩn hoá (mask = dead, mỗi cách chọn η tốt nhất trong 3 giá trị) ===
+EDA chốt chuẩn hoá vô hướng (một μ, một σ); 'pixel' = z-score từng pixel, chỉ để đối chứng
+chuẩn hoá |      η | max|z| val | val acc | val loss | sai mà p>0.99
+     none |  0.010 |        1.0 |  0.9155 |   0.3001 |       0.1300%
+   scalar |  0.003 |        2.7 |  0.9210 |   0.2877 |       0.1800%
+    pixel |  0.003 |     1313.7 |  0.9182 |   0.2980 |       0.2400%
+
+=== E2a. Learning rate × momentum (mini-batch 128, 10 epoch, scale = scalar) ===
+val acc (hàng: momentum α, cột: η); η_eff = η / (1 − α)
+            0.001    0.003     0.01     0.03      0.1
+α = 0.0    0.8889   0.9043   0.9149   0.9199   0.9185
+α = 0.5    0.9005   0.9110   0.9177   0.9172   0.9164
+α = 0.9    0.9148   0.9190   0.9190   0.9120   0.8959
+Chọn theo val loss nhỏ nhất: α = 0.9, η = 0.01 (val acc 0.9190, val loss 0.2919)
+
+=== E2c. Kích thước batch (20 epoch, α = 0.9, mỗi batch dò η riêng) ===
+ batch | η tốt nhất | bước/epoch | val acc | val loss | s/epoch
+    32 |      0.003 |       1563 |  0.9207 |   0.2928 |   0.132
+    64 |       0.01 |        782 |  0.9190 |   0.3019 |   0.109
+   128 |       0.01 |        391 |  0.9219 |   0.2907 |   0.098
+   256 |       0.03 |        196 |  0.9195 |   0.2952 |   0.122
+  1024 |        0.1 |         49 |  0.9193 |   0.2938 |   0.092
+  full |        0.3 |          1 |  0.8994 |   0.6432 |   0.073
+Chọn batch = 128, η = 0.01 (mặc định, cách tốt nhất (batch 128) < 0.002). Các batch cách tốt nhất < 0.002: 128
+
+=== E2b. Tốc độ hội tụ của J(W) (100 epoch) ===
+          full-batch, η=0.2, α=0, vô hướng: J sau 10 epoch = 0.5050 | J cuối = 0.3114 | val acc cuối = 0.9102 | 7.7s
+        full-batch, η=0.2, α=0.9, vô hướng: J sau 10 epoch = 0.5612 | J cuối = 0.2566 | val acc cuối = 0.9202 | 7.6s
+   mini-batch 128, η=0.01, α=0.9, vô hướng: J sau 10 epoch = 0.2576 | J cuối = 0.2302 | val acc cuối = 0.9176 | 15.8s
+
+=== E3. Hệ số L2 λ (60 epoch, η = 0.01, α = 0.9, batch = 128) ===
+      λ | train loss | val loss |  chênh | val acc | lốm đốm |     ‖W‖
+  0e+00 |     0.2466 |   0.2910 | 0.0445 |  0.9217 |   1.084 |   11.06
+  1e-05 |     0.2463 |   0.2910 | 0.0448 |  0.9217 |   1.082 |   10.97
+  1e-04 |     0.2439 |   0.2907 | 0.0468 |  0.9219 |   1.067 |   10.26
+  1e-03 |     0.2419 |   0.2872 | 0.0453 |  0.9201 |   0.921 |    6.71
+  1e-02 |     0.2882 |   0.3056 | 0.0174 |  0.9155 |   0.609 |    3.33
+Chọn λ = 0.001 (val loss nhỏ nhất)
+
+=== E4. Chọn pixel (15 epoch) ===
+   mask | số đặc trưng | fit (s) | val acc | val loss
+   none |          784 |    2.35 |  0.9195 |   0.2903
+   dead |          712 |    1.84 |  0.9207 |   0.2896
+   rare |          596 |    1.57 |  0.9201 |   0.2897
+ crop24 |          576 |    1.42 |  0.9197 |   0.2912
+Chọn mask = crop24 (ít đặc trưng nhất trong các cách có val loss cách tốt nhất < 0.002)
+
+=== E5. Mô hình cuối (early stopping trên val; test dùng một lần) ===
+Cấu hình: {"scale": "scalar", "lam": 0.001, "momentum": 0.9, "batch_size": 128, "max_epochs": 150, "patience": 8, "mask": "crop24", "eta": 0.01}
+Dừng ở epoch 21, chọn epoch 13 | fit 2.7s (cập nhật 2.0s, val loss 0.1s; kể cả chẩn đoán: 3.3s)
+
+[train]
+Mô hình                      Acc    Prec     Rec      F1    Fit(s)   Pred(s)
+----------------------------------------------------------------------------
+Tâm gần nhất              0.8080  0.8116  0.8046  0.8059      0.18     0.108
+Logistic Regression       0.9281  0.9274  0.9270  0.9271      2.70     0.354
+
+[val]
+Mô hình                      Acc    Prec     Rec      F1    Fit(s)   Pred(s)
+----------------------------------------------------------------------------
+Tâm gần nhất              0.8048  0.8103  0.8014  0.8031      0.18     0.022
+Logistic Regression       0.9197  0.9191  0.9188  0.9188      2.70     0.069
+
+[test]
+Mô hình                      Acc    Prec     Rec      F1    Fit(s)   Pred(s)
+----------------------------------------------------------------------------
+Tâm gần nhất              0.8198  0.8230  0.8167  0.8178      0.18     0.022
+Logistic Regression       0.9238  0.9229  0.9226  0.9227      2.70     0.069
+
+Độ đo xác suất (để so với Multinomial NB):
+  train: log-loss 0.2564 | sai mà p>0.99: 0.092% mẫu (1.3% số lỗi) | độ tự tin TB 0.907
+    val: log-loss 0.2912 | sai mà p>0.99: 0.190% mẫu (2.4% số lỗi) | độ tự tin TB 0.905
+   test: log-loss 0.2761 | sai mà p>0.99: 0.150% mẫu (2.0% số lỗi) | độ tự tin TB 0.910
+
+Lỗi theo cặp lớp (cộng hai chiều). Dấu * đánh dấu 5 cặp EDA 3.1 dự báo:
+            LR  val: 4–9*: 63, 7–9*: 63, 3–5*: 61, 3–8*: 60, 5–8*: 48, 2–3: 46, 2–8: 37, 1–8: 36
+                     5 cặp EDA chiếm 36.7% tổng lỗi (nếu rải đều: 11.1%)
+  Tâm gần nhất  val: 4–9*: 195, 3–5*: 181, 3–8*: 168, 7–9*: 116, 1–5: 95, 1–2: 92, 1–8: 74, 0–5: 70
+                     5 cặp EDA chiếm 36.4% tổng lỗi (nếu rải đều: 11.1%)
+            LR test: 4–9*: 75, 3–5*: 60, 5–8*: 53, 7–9*: 47, 3–8*: 44, 5–6: 37, 2–3: 36, 2–8: 33
+                     5 cặp EDA chiếm 36.6% tổng lỗi (nếu rải đều: 11.1%)
+  Tâm gần nhất test: 4–9*: 202, 3–5*: 164, 3–8*: 141, 1–2: 82, 7–9*: 79, 0–5: 71, 1–5: 70, 2–3: 61
+                     5 cặp EDA chiếm 35.2% tổng lỗi (nếu rải đều: 11.1%)
+
+Ma trận nhầm lẫn của Logistic Regression (hàng: nhãn thật, cột: dự đoán; cột cuối: recall của lớp):
+
+[train]
+ thật\đoán    0    1    2    3    4    5    6    7    8    9   đúng %
+         0 4773    1   19    8   11   52   28    9   32    3    96.7%
+         1    1 5497   24   14    4   21    1    8   41    7    97.8%
+         2   20   41 4566   55   57   31   39   60   77   19    92.0%
+         3    9   30  130 4586    5  172   15   44   67   51    89.8%
+         4    7   31   28    6 4511    8   44   20   23  190    92.7%
+         5   45   23   44  126   47 4051   58   14   79   31    89.7%
+         6   20   18   39    1   27   82 4718    2   22    3    95.7%
+         7    9   26   60   12   32   10    2 4944   10  116    94.7%
+         8   22  116   83  112   17  147   28   17 4269   65    87.6%
+         9   20   30   21   64  110   37    1  158   28 4488    90.5%
+
+[val]
+ thật\đoán    0    1    2    3    4    5    6    7    8    9   đúng %
+         0  950    0    3    0    1   17    7    3    5    1    96.3%
+         1    0 1093   11    2    1    2    0    1   11    3    97.2%
+         2    4   13  898   15    9    5   14   10   23    2    90.4%
+         3    3    5   31  903    0   36    2    9   26    7    88.4%
+         4    2    3    7    0  894    1    8    6    5   48    91.8%
+         5   11    4    7   25   11  810    5    5   15   10    89.7%
+         6    5    4    5    0    9   24  933    0    5    1    94.6%
+         7    4    8   17    4    9    2    0  967    2   31    92.6%
+         8    9   25   14   34    3   33    7    2  839    9    86.1%
+         9    2   11    0    9   15    7    1   32    5  910    91.7%
+
+[test]
+ thật\đoán    0    1    2    3    4    5    6    7    8    9   đúng %
+         0  955    0    2    2    0   10    6    4    1    0    97.4%
+         1    0 1115    2    2    0    1    4    2    9    0    98.2%
+         2    4    9  942   15    8    5   10   10   22    7    91.3%
+         3    2    1   21  919    0   26    3   11   16   11    91.0%
+         4    1    3    9    1  901    0   10    5    5   47    91.8%
+         5    8    3    4   34    9  788   13    7   21    5    88.3%
+         6    9    3    8    1    7   24  902    3    1    0    94.2%
+         7    1   10   22    6    8    1    0  955    2   23    92.9%
+         8    7   10   11   28    9   32    8   10  847   12    87.0%
+         9   11    8    1    9   28    7    0   24    7  914    90.6%
+
+Số đo chung cho mọi mô hình: hoán vị khối 4×4 trên val, khối quan trọng nhất làm giảm acc 0.0846 (9s)
+
+Tổng thời gian: 234s
+
+Đã ghi results/logistic_regression/summary.json, log.txt và figures/
